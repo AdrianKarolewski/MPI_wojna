@@ -2,7 +2,6 @@
 #include <mpi.h>
 
 #include "msg_handler.hpp"
-#include "docks_manager.hpp"
 #include "simulation.hpp"
 
 #include <thread>
@@ -28,9 +27,10 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    DockManager manager(size, rank);
+    DockManager dManager(size, rank);
+    MechanicsManager mManager(size, rank);
 
-    std::thread watek_msg_handler(msg_handler, std::ref(rank), std::ref(size), std::ref(manager));
+    std::thread watek_msg_handler(msg_handler, std::ref(rank), std::ref(size), std::ref(dManager), std::ref(mManager));
 
     while (true)
     {
@@ -41,12 +41,12 @@ int main(int argc, char **argv)
         }
         // czekamy az uda nam sie dostac do sekcji krytycznej dokow
 
-        while (!(manager.startDocking()))
+        while (!(dManager.startDocking()))
         {
 
         }
         // czekamy az uda nam sie dostac do mechanikow, i ich liczba bedzie odpowiadac naszym potrzeba
-        while (!(manager.takeMechanick(mySpaceShip.howManyMechanicks())))
+        while (!(mManager.takeMechanick(mySpaceShip.howManyMechanicks())))
         {
             
         }
@@ -54,11 +54,11 @@ int main(int argc, char **argv)
         Simulation::heal(mySpaceShip, rank);
         
         // czekamy az uda nam sie dostac do mechanikow, i zwracamy liczbe zaporzyczona na naprawy
-        while (!(manager.releaseMechanic()))
+        while (!(mManager.releaseMechanic()))
         {
         }
         // wychodzimy z sekcji krytycznej K dokow
-        manager.endDocking();
+        dManager.endDocking();
     }
     // zamkniecie watku msg_handler i koniec programu
     watek_msg_handler.join();
