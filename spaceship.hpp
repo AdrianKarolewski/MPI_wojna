@@ -11,11 +11,11 @@ class SpaceShip
 public:
     SpaceShip() : lives(MAX_LIVES) {}
     bool canGoFight();
-    
+    int howManyMechanicks();
 private:
     void makeDemage(const int & d);
     void healShip();
-    int howManyMechanicks();
+
     int lives;
 };
 

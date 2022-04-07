@@ -8,9 +8,6 @@
 #include <ctime>
 #include <unistd.h>
 
-#define M_MECHANICS 100
-#define K_DOCKS 10
-
 class Simulation
 {
 public:
@@ -19,15 +16,16 @@ public:
         double sleep_time = (static_cast<double>(rand()) / RAND_MAX);
 
         sleep_time += rank + 1;
-        sleep_time /= rank + 1;
+        sleep_time /= 2;
         ship.makeDemage(((rand() + rank) % MAX_LIVES) + 1);
         sleep(sleep_time);
-
         printf("Jesetm po bitwie proces nr %d potrzebuje %d mechanikow bilem sie %lf s\n", rank, ship.howManyMechanicks(), sleep_time);
+        return;
     }
     static void heal(SpaceShip &ship, const int &rank)
     {
-        sleep(ship.howManyMechanicks() / 2);
+        printf("Zaczynam sie leczyc proces %d \n", rank);
+        sleep(static_cast<double>(ship.howManyMechanicks() / 4));
         ship.healShip();
     }
 };
