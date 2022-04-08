@@ -7,7 +7,7 @@
 #include <vector>
 
 #define M_MECHANICS 100
-#define K_DOCKS 5
+#define K_DOCKS 2
 
 #define ACK_FOR_K 100
 #define REQ_FOR_K 101

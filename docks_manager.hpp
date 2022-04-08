@@ -6,11 +6,11 @@
 class DockManager : public QueueManager
 {
 public:
-    DockManager(int _size, int _rank) : QueueManager(_size, _rank) {}
+    DockManager(int _size, int _rank) : QueueManager(_size, _rank), isInDock(false) {}
     bool startDocking();
     bool endDocking();
     void printPrcessInQueue();
-private:
 
+    std::atomic_bool isInDock;
 };
 #endif //! DOCK_MANAGER_HPP
