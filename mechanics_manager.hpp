@@ -6,14 +6,12 @@
 class MechanicsManager : public QueueManager
 {
 public:
-    MechanicsManager(int _size, int _rank) : QueueManager(_size, _rank), mechanic_number(0) {}
+    MechanicsManager(int _size, int _rank) : QueueManager(_size, _rank) {}
     
-    bool startDocking();
-    bool endDocking();
     bool takeMechanick(int m_number);
-    bool releaseMechanic();
-private:
-    int mechanic_number;
+    bool releaseMechanic(int m_number);
+    bool takeAccesToGlobalVMech(int m_number);
+    void printPrcessInQueue();
 };
 
 #endif //! MECHANICS_MANAGER_HPP

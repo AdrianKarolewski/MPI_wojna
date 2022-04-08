@@ -32,33 +32,35 @@ int main(int argc, char **argv)
 
     std::thread watek_msg_handler(msg_handler, std::ref(rank), std::ref(size), std::ref(dManager), std::ref(mManager));
 
+    int machanic_i_need{0};
     while (true)
     {
         // sprawdzamy czy statek ma pelne zycie i moze sie bic
         if (mySpaceShip.canGoFight())
         {
             Simulation::go_to_war(mySpaceShip, rank);
-        }
-        // czekamy az uda nam sie dostac do sekcji krytycznej dokow
+            // czekamy az uda nam sie dostac do sekcji krytycznej dokow
 
-        while (!(dManager.startDocking()))
-        {
+            while (!(dManager.startDocking()))
+            {
 
+            }
+            // czekamy az uda nam sie dostac do mechanikow, i ich liczba bedzie odpowiadac naszym potrzeba
+            machanic_i_need = mySpaceShip.howManyMechanicks();
+            while (!(mManager.takeMechanick(machanic_i_need)))
+            {
+
+            }
+            // gdy udalo nam sie przejsc obie sekcje krytyczne
+            Simulation::heal(mySpaceShip, rank);
+
+            // czekamy az uda nam sie dostac do mechanikow, i zwracamy liczbe zaporzyczona na naprawy
+            while (!(mManager.releaseMechanic(machanic_i_need)))
+            {
+            }
+            // wychodzimy z sekcji krytycznej K dokow
+            dManager.endDocking();
         }
-        // czekamy az uda nam sie dostac do mechanikow, i ich liczba bedzie odpowiadac naszym potrzeba
-        while (!(mManager.takeMechanick(mySpaceShip.howManyMechanicks())))
-        {
-            
-        }
-        // gdy udalo nam sie przejsc obie sekcje krytyczne
-        Simulation::heal(mySpaceShip, rank);
-        
-        // czekamy az uda nam sie dostac do mechanikow, i zwracamy liczbe zaporzyczona na naprawy
-        while (!(mManager.releaseMechanic()))
-        {
-        }
-        // wychodzimy z sekcji krytycznej K dokow
-        dManager.endDocking();
     }
     // zamkniecie watku msg_handler i koniec programu
     watek_msg_handler.join();

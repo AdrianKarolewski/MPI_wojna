@@ -15,7 +15,7 @@ public:
     {
         double sleep_time = (static_cast<double>(rand()) / RAND_MAX);
 
-        sleep_time += 1 - (rank / 4);
+        sleep_time += 1;
         sleep_time /= 2;
         ship.makeDemage(((rand() + rank) % MAX_LIVES) + 1);
         sleep(sleep_time);

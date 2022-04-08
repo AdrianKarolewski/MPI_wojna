@@ -31,9 +31,9 @@ int QueueManager::myClockInQueue()
             return p.lamportClockValue;
         }
     }
-    return 0;
+    return 9999;
 }
-// dodanie procesu ubiegajacego sie o dostep do dokow
+// dodanie procesu ubiegajacego sie o dostep do zmiennych chronionych
 void QueueManager::addProcesTokQueue(ProcessInQueue p)
 {
     setMutex.lock();
@@ -48,8 +48,8 @@ void QueueManager::delProcesFromQueue(int pId)
     {
         if((*it).processRank == pId)
         {
-            processWaitingInQueue.erase(it);
-            return;
+            processWaitingInQueue.erase((*it));
+            break;
         }
     }
     setMutex.unlock();
@@ -57,7 +57,7 @@ void QueueManager::delProcesFromQueue(int pId)
 bool QueueManager::hasBetterPositionInQueue(int pId)
 {
     int mpos = processWaitingInQueue.size() + 1; // w wypadku nie znalezienia w kolejce siebie wyslemy cawsze ack
-    int cpos{0};
+    int cpos = processWaitingInQueue.size() + 2;
     int i{0};
     for (const auto &p : processWaitingInQueue)
     {
@@ -75,7 +75,7 @@ bool QueueManager::hasBetterPositionInQueue(int pId)
 }
 std::vector<int> QueueManager::afterMeInQueue()
 {
-    int mpos = processWaitingInQueue.size() + 1; // w wypadku nie znalezienia w kolejce siebie wyslemy cawsze ack
+    int mpos = 0; // w wypadku nie znalezienia w kolejce siebie wyslemy cawsze ack
     int i{0};
     std::vector<int> afterme;
     for (const auto &p : processWaitingInQueue)
@@ -99,13 +99,12 @@ std::vector<int> QueueManager::afterMeInQueue()
 }
 void QueueManager::printPrcessInQueue()
 {
-    setMutex.lock();
-    printf("%d moja kolejka do Dokow: ", myRank);
+    setMutex.lock();   
     for (const auto &p : processWaitingInQueue)
     {
-        printf("p: %d l: %d -> ", p.processRank, p.lamportClockValue);
+        printf("%d l:%d -> ", p.processRank, p.lamportClockValue);
     }
+    setMutex.unlock();
     int a = ack;
     printf("ilosc moich ack %d \n",a);
-    setMutex.unlock();
 }

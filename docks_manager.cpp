@@ -8,21 +8,17 @@
 #include <unistd.h>
 
 // funkcja obslugujaca ubieganie sie o doki dla naszego procesu zakolejkowanie do sekcji krytycznej dokow
+void DockManager::printPrcessInQueue()
+{
+    printf("%d moja kolejka do dokow: ", myRank);
+    QueueManager::printPrcessInQueue();
+}
 bool DockManager::startDocking()
 {
-    // TODO
-    /*
-    while(ackK < nprocesInWork - dock_number)
-    {
-
-    }
-    */
-    // printf("%d zadokowalem\n", myRank);
     return true;
 }
 // funkcja konczaca dokowanie naszego procesu wykolejkowanie z sekcji krytycznej dokow
 bool DockManager::endDocking()
 {
-    ack = 0;
     return true;
 }
