@@ -23,11 +23,10 @@ bool MechanicsManager::takeAccesToGlobalVMech(int m_number)
     MPI_Send(&lamp_nr, 1, MPI_INT, myRank, REQ_FOR_M, MPI_COMM_WORLD);
 
     // czekamy za odpowiednia iloscia ack
-    while (ack < K_DOCKS - 1)
+    while (ack < nprocesInWork - 1)
     {
-        sleep(0.2);
+        sleep(0.1);
     }
-
     // wchodzimy do sekcji krytycznej
     printf("%d wchodzi do sekcji strzezonej mechanikow ich ilosc - %d\n", myRank, global_mechanic_number);
     if (global_mechanic_number - m_number >= 0)

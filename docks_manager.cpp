@@ -22,7 +22,7 @@ bool DockManager::startDocking()
     // czekamy za odpowiednia iloscia ack
     while (ack < nprocesInWork - K_DOCKS)
     {
-        sleep(0.2);
+        sleep(0.1);
     }
 
     // wchodzimy do sekcji krytycznej

@@ -78,7 +78,7 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
                 int c = mechanicsManager.get_lamport_clock();
                 for (auto p : ptoACK)
                 {
-                    printf("poMnie %d", p);
+                    printf("poMnie %d", 1);
                     MPI_Send(&c, 1, MPI_INT, p, ACK_FOR_M, MPI_COMM_WORLD);
                 }
                 // usuwamy sie z kolejki
@@ -139,18 +139,15 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
             else if (status.MPI_TAG == REQ_FOR_M)
             {
                 // printf("%d dostalem REQ M od %d\n", myProcRank, status.MPI_SOURCE);
-                if (dockManager.isInDock)
+                mechanicsManager.clock_increment(come_lamp_value);
+                mechanicsManager.delProcesFromQueue(status.MPI_SOURCE);
+                mechanicsManager.addProcesTokQueue({status.MPI_SOURCE, come_lamp_value});
+                mechanicsManager.printPrcessInQueue();
+                if (mechanicsManager.hasBetterPositionInQueue(status.MPI_SOURCE))
                 {
-                    mechanicsManager.clock_increment(come_lamp_value);
-                    mechanicsManager.delProcesFromQueue(status.MPI_SOURCE);
-                    mechanicsManager.addProcesTokQueue({status.MPI_SOURCE, come_lamp_value});
-                    mechanicsManager.printPrcessInQueue();
-                    if (mechanicsManager.hasBetterPositionInQueue(status.MPI_SOURCE))
-                    {
-                        mechanicsManager.clock_increment();
-                        int c = mechanicsManager.get_lamport_clock();
-                        MPI_Send(&c, 1, MPI_INT, status.MPI_SOURCE, ACK_FOR_M, MPI_COMM_WORLD);
-                    }
+                    mechanicsManager.clock_increment();
+                    int c = mechanicsManager.get_lamport_clock();
+                    MPI_Send(&c, 1, MPI_INT, status.MPI_SOURCE, ACK_FOR_M, MPI_COMM_WORLD);
                 }
             }
         }
