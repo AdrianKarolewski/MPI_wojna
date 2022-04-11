@@ -16,7 +16,6 @@ void DockManager::printPrcessInQueue()
 bool DockManager::startDocking()
 {
     int tab[2];
-    tab[0] = get_lamport_clock();
     // wysylamy req do siebie ze chcemy dostep do M
     MPI_Send(&tab, 2, MPI_INT, myRank, REQ_FOR_K, MPI_COMM_WORLD);
 
@@ -25,9 +24,7 @@ bool DockManager::startDocking()
     {
         sleep(0.1);
     }
-
     // wchodzimy do sekcji krytycznej
-    isInDock = true;
     printf("%d zajmuje dok DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\n", myRank);
     return true;
 }
@@ -35,11 +32,9 @@ bool DockManager::startDocking()
 bool DockManager::endDocking()
 {
     int tab[2];
-    tab[0] = get_lamport_clock();
+    ack = 0;
     // gdy wszystko od dajemy znak o opuszenie sekcji krytycznej
     printf("%d opuszcza dok DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\n", myRank);
-    isInDock = false;
-    ack = 0;
     MPI_Send(&tab, 2, MPI_INT, myRank, ACK_FOR_K, MPI_COMM_WORLD);
     return true;
 }

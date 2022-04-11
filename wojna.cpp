@@ -49,7 +49,7 @@ int main(int argc, char **argv)
             machanic_i_need = mySpaceShip.howManyMechanicks();
             while (!(mManager.takeMechanick(machanic_i_need)))
             {
-
+                sleep(1);
             }
             // gdy udalo nam sie przejsc obie sekcje krytyczne
             Simulation::heal(mySpaceShip, rank);

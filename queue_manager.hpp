@@ -15,6 +15,11 @@
 #define ACK_FOR_M 102
 #define REQ_FOR_M 103
 
+#define UPDATE_M 104
+
+#define LAMPORT_V_IN_TAB 0
+#define MECHANIC_V_IN_TAB 1
+
 // wspolne zmienne globalne dla procesow
 
 struct ProcessInQueue

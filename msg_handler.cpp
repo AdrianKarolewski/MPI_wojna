@@ -20,7 +20,6 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
             {
                 printf("%d ubiega sie o dostep do dokow\n", myProcRank);
                 // aktualicujemy zegar zgodny z aktualnym stanem managera mogl w miedzy czasie wyslac ack np lub odebrac req
-                dockManager.clock_increment();
                 tab[0] = dockManager.get_lamport_clock();
 
                 // dodajemy sie do kolejki
@@ -39,7 +38,6 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
             {
                 printf("%d ubiega sie o dostep do mechanikow\n", myProcRank);
                 // aktualicujemy zegar zgodny z aktualnym stanem managera mogl w miedzy czasie wyslac ack np lub odebrac req
-                mechanicsManager.clock_increment();
                 tab[0] = mechanicsManager.get_lamport_clock();
                 // dodajemy sie do kolejki
                 mechanicsManager.addProcesTokQueue({status.MPI_SOURCE, tab[0]});
@@ -64,6 +62,8 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
                 for (auto p : ptoACK)
                 {
                     MPI_Send(&tab, 2, MPI_INT, p, ACK_FOR_K, MPI_COMM_WORLD);
+                    // usuwamy z kolejki wszystkich po nas po wyslaniu im ack
+                    dockManager.delProcesFromQueue(p);
                 }
                 // usuwamy sie z kolejki
                 dockManager.delProcesFromQueue(myProcRank);
@@ -76,9 +76,17 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
                 auto ptoACK = mechanicsManager.afterMeInQueue();
                 mechanicsManager.clock_increment();
                 tab[0] = mechanicsManager.get_lamport_clock();
+                for (int i = 0; i < procSize; ++i)
+                {
+                    if (i != myProcRank)
+                    {
+                        MPI_Send(&tab, 2, MPI_INT, i, UPDATE_M, MPI_COMM_WORLD);
+                    }
+                }
                 for (auto p : ptoACK)
                 {
                     MPI_Send(&tab, 2, MPI_INT, p, ACK_FOR_M, MPI_COMM_WORLD);
+                    mechanicsManager.delProcesFromQueue(p);
                 }
                 // usuwamy sie z kolejki
                 mechanicsManager.delProcesFromQueue(myProcRank);
@@ -93,8 +101,6 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
                 dockManager.clock_increment(tab[0]);
                 if (dockManager.myClockInQueue() <= tab[0]) // zapewnia nam ze nie odbierzemy starych ack dla nowego zapytania
                 {
-                    // printf("%d dostalem ACK K od %d\n", myProcRank, status.MPI_SOURCE);
-                    //  jezeli dal mi ack a mial lepsza pozycje znaczy ze wyszedl z krytycznej
                     if (dockManager.hasBetterPositionInQueue(status.MPI_SOURCE))
                     {
                         dockManager.delProcesFromQueue(status.MPI_SOURCE);
@@ -126,12 +132,9 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
                 dockManager.delProcesFromQueue(status.MPI_SOURCE);
                 dockManager.addProcesTokQueue({status.MPI_SOURCE, tab[0]});
                 dockManager.printPrcessInQueue();
-
                 if (dockManager.hasBetterPositionInQueue(status.MPI_SOURCE))
                 {
-                    dockManager.clock_increment();
                     tab[0] = dockManager.get_lamport_clock();
-
                     MPI_Send(&tab, 2, MPI_INT, status.MPI_SOURCE, ACK_FOR_K, MPI_COMM_WORLD);
                 }
             }
@@ -148,6 +151,10 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
                     tab[0] = mechanicsManager.get_lamport_clock();
                     MPI_Send(&tab, 2, MPI_INT, status.MPI_SOURCE, ACK_FOR_M, MPI_COMM_WORLD);
                 }
+            }
+            else if (status.MPI_TAG == UPDATE_M)
+            {
+                mechanicsManager.setGlobalMechanicNumber(tab[MECHANIC_V_IN_TAB]);
             }
         }
     }
