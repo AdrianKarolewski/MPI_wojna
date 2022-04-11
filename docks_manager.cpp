@@ -15,9 +15,10 @@ void DockManager::printPrcessInQueue()
 }
 bool DockManager::startDocking()
 {
-    int lamp_nr = get_lamport_clock();
+    int tab[2];
+    tab[0] = get_lamport_clock();
     // wysylamy req do siebie ze chcemy dostep do M
-    MPI_Send(&lamp_nr, 1, MPI_INT, myRank, REQ_FOR_K, MPI_COMM_WORLD);
+    MPI_Send(&tab, 2, MPI_INT, myRank, REQ_FOR_K, MPI_COMM_WORLD);
 
     // czekamy za odpowiednia iloscia ack
     while (ack < nprocesInWork - K_DOCKS)
@@ -33,11 +34,12 @@ bool DockManager::startDocking()
 // funkcja konczaca dokowanie naszego procesu wykolejkowanie z sekcji krytycznej dokow
 bool DockManager::endDocking()
 {
-    int lamp_nr = get_lamport_clock();
+    int tab[2];
+    tab[0] = get_lamport_clock();
     // gdy wszystko od dajemy znak o opuszenie sekcji krytycznej
     printf("%d opuszcza dok DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\n", myRank);
     isInDock = false;
     ack = 0;
-    MPI_Send(&lamp_nr, 1, MPI_INT, myRank, ACK_FOR_K, MPI_COMM_WORLD);
+    MPI_Send(&tab, 2, MPI_INT, myRank, ACK_FOR_K, MPI_COMM_WORLD);
     return true;
 }

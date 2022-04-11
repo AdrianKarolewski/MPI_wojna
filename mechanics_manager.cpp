@@ -7,8 +7,6 @@
 #include <ctime>
 #include <unistd.h>
 
-int global_mechanic_number = M_MECHANICS; // ilosc mechanikow do modyfikowania zmienna globalna dla wszyskich procesow
-
 void MechanicsManager::printPrcessInQueue()
 {
     printf("%d moja kolejka do mechanikow: ", myRank);
@@ -18,9 +16,11 @@ void MechanicsManager::printPrcessInQueue()
 
 bool MechanicsManager::takeAccesToGlobalVMech(int m_number)
 {
-    int lamp_nr = get_lamport_clock();
+    int tab[2];
+    tab[0] = get_lamport_clock();
+    tab[1] = global_mechanic_number;
     // wysylamy req do siebie ze chcemy dostep do M
-    MPI_Send(&lamp_nr, 1, MPI_INT, myRank, REQ_FOR_M, MPI_COMM_WORLD);
+    MPI_Send(&tab, 2, MPI_INT, myRank, REQ_FOR_M, MPI_COMM_WORLD);
 
     // czekamy za odpowiednia iloscia ack
     while (ack < nprocesInWork - 1)
@@ -35,19 +35,18 @@ bool MechanicsManager::takeAccesToGlobalVMech(int m_number)
     }
     else // gdy za malo mechanikow zwalniamy sekcje krytyczna i idziemy na koniec kolejki
     {
-        printf("%d opuszcza sekcje krytyczna mechanikow - brak wymaganej ilosci mechanikow\n", myRank);
+        printf("%d opuszcza sekcje krytyczna mechanikow - brak wymaganej ilosci mechanikow - %d\n", myRank, global_mechanic_number);
         ack = 0;
-        int lamp_nr = get_lamport_clock();
         // znak o opuszczenie sekcji krytycznej
-        MPI_Send(&lamp_nr, 1, MPI_INT, myRank, ACK_FOR_M, MPI_COMM_WORLD);
+        MPI_Send(&tab, 2, MPI_INT, myRank, ACK_FOR_M, MPI_COMM_WORLD);
         // znak o checi zakolejkowania
-        MPI_Send(&lamp_nr, 1, MPI_INT, myRank, REQ_FOR_M, MPI_COMM_WORLD);
         return false;
     }
     // gdy wszystko od dajemy znak o opuszenie sekcji krytycznej
-    printf("%d opuszcza sekcje krytyczna mechanikow\n", myRank);
+    tab[1] = global_mechanic_number;
+    printf("%d opuszcza sekcje krytyczna mechanikow ich ilsc - %d \n", myRank, global_mechanic_number);
     ack = 0;
-    MPI_Send(&lamp_nr, 1, MPI_INT, myRank, ACK_FOR_M, MPI_COMM_WORLD);
+    MPI_Send(&tab, 2, MPI_INT, myRank, ACK_FOR_M, MPI_COMM_WORLD);
     return true;
 }
 // pobiera z zmiennej globalnej podana ilosc mechanikow
@@ -56,7 +55,7 @@ bool MechanicsManager::takeMechanick(int m_number)
     printf("Chce pobrac mechanikow %d - proc: %d\n",m_number ,myRank);
     if(m_number > 0)
     {
-        return takeAccesToGlobalVMech(m_number);
+        //return takeAccesToGlobalVMech(m_number);
     }
     return true;
 }
@@ -67,7 +66,7 @@ bool MechanicsManager::releaseMechanic(int m_number)
     printf("Chce oddac mechanikow %d -proc: %d\n",m_number, myRank);
     if(m_number > 0)
     {
-        return takeAccesToGlobalVMech(-(m_number));
+        //return takeAccesToGlobalVMech(-(m_number));
     }
     return true;
 }
