@@ -100,7 +100,7 @@ std::vector<int> QueueManager::afterMeInQueue()
 void QueueManager::printPrcessInQueue()
 {
     setMutex.lock();
-    printf("moj aktualny lamport %d", get_lamport_clock());
+    printf(" moj aktualny lamport %d  |", get_lamport_clock());
     for (const auto &p : processWaitingInQueue)
     {
         printf("%d l:%d -> ", p.processRank, p.lamportClockValue);

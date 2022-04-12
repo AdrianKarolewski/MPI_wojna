@@ -9,8 +9,8 @@
 
 void MechanicsManager::printPrcessInQueue()
 {
-    //printf("%d moja kolejka do mechanikow: ", myRank);
-    //QueueManager::printPrcessInQueue();
+    printf("%d moja kolejka do mechanikow: ", myRank);
+    QueueManager::printPrcessInQueue();
     printf("\n");
 }
 
