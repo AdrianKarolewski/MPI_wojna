@@ -63,7 +63,9 @@ int main(int argc, char **argv)
         }
     }
     // zamkniecie watku msg_handler i koniec programu
-    watek_msg_handler.join();
-    printf("join\n");
+    if(watek_msg_handler.joinable())
+    {
+        watek_msg_handler.join();
+    }
     MPI_Finalize();
 }

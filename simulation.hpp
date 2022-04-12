@@ -25,7 +25,7 @@ public:
     static void heal(SpaceShip &ship, const int &rank)
     {
         printf("\n \n Zaczynam sie leczyc proces %d \n \n", rank);
-        sleep(static_cast<double>(ship.howManyMechanicks()));
+        sleep(static_cast<double>(ship.howManyMechanicks()) / 2);
         ship.healShip();
     }
 };

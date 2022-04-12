@@ -147,7 +147,6 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
                 mechanicsManager.printPrcessInQueue();
                 if (mechanicsManager.hasBetterPositionInQueue(status.MPI_SOURCE))
                 {
-                    mechanicsManager.clock_increment();
                     tab[0] = mechanicsManager.get_lamport_clock();
                     MPI_Send(&tab, 2, MPI_INT, status.MPI_SOURCE, ACK_FOR_M, MPI_COMM_WORLD);
                 }
