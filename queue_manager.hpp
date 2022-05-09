@@ -56,7 +56,7 @@ public:
     bool hasBetterPositionInQueue(int pId);
     std::vector<int> afterMeInQueue();
 
-    void incrementACK() { ack++; }
+    void incrementACK(int ackNr = 1) { ack += ackNr; }
 
 protected:
     const int myRank;

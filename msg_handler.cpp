@@ -8,7 +8,7 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
     const int myProcRank{_rank};
     const int procSize{_size};
 
-    int tab[2]; // 0 - zegar lamporta 1 - globalna mechanikow
+    int tab[2]; // 0 - zegar lamporta 1 - ilosc ack na mechanikow
     MPI_Status status;
 
     while (true)
@@ -36,7 +36,7 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
             }
             else if (status.MPI_TAG == REQ_FOR_M)
             {
-                printf("%d ubiega sie o dostep do mechanikow\n", myProcRank);
+                //printf("%d ubiega sie o dostep do mechanikow\n", myProcRank);
                 // aktualicujemy zegar zgodny z aktualnym stanem managera mogl w miedzy czasie wyslac ack np lub odebrac req
                 tab[0] = mechanicsManager.get_lamport_clock();
                 // dodajemy sie do kolejki
@@ -76,13 +76,6 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
                 auto ptoACK = mechanicsManager.afterMeInQueue();
                 mechanicsManager.clock_increment();
                 tab[0] = mechanicsManager.get_lamport_clock();
-                for (int i = 0; i < procSize; ++i)
-                {
-                    if (i != myProcRank)
-                    {
-                        MPI_Send(&tab, 2, MPI_INT, i, UPDATE_M, MPI_COMM_WORLD);
-                    }
-                }
                 for (auto p : ptoACK)
                 {
                     MPI_Send(&tab, 2, MPI_INT, p, ACK_FOR_M, MPI_COMM_WORLD);
@@ -121,7 +114,7 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
                     {
                         mechanicsManager.delProcesFromQueue(status.MPI_SOURCE);
                     }
-                    mechanicsManager.incrementACK();
+                    mechanicsManager.incrementACK(tab[1]);
                 }
                 mechanicsManager.printPrcessInQueue();
             }
@@ -147,13 +140,16 @@ void msg_handler(const int &_rank, const int &_size, DockManager &dockManager, M
                 mechanicsManager.printPrcessInQueue();
                 if (mechanicsManager.hasBetterPositionInQueue(status.MPI_SOURCE))
                 {
+                    tab[1] = M_MECHANICS;
                     tab[0] = mechanicsManager.get_lamport_clock();
                     MPI_Send(&tab, 2, MPI_INT, status.MPI_SOURCE, ACK_FOR_M, MPI_COMM_WORLD);
                 }
-            }
-            else if (status.MPI_TAG == UPDATE_M)
-            {
-                mechanicsManager.setGlobalMechanicNumber(tab[MECHANIC_V_IN_TAB]);
+                else
+                {
+                    tab[1] = M_MECHANICS - mechanicsManager.how_much_we_need();
+                    tab[0] = mechanicsManager.get_lamport_clock();
+                    MPI_Send(&tab, 2, MPI_INT, status.MPI_SOURCE, ACK_FOR_M, MPI_COMM_WORLD);
+                }
             }
         }
     }

@@ -6,16 +6,14 @@
 class MechanicsManager : public QueueManager
 {
 public:
-    MechanicsManager(int _size, int _rank) : QueueManager(_size, _rank), global_mechanic_number(M_MECHANICS) {}
+    MechanicsManager(int _size, int _rank) : QueueManager(_size, _rank), mWeNeed(0) {}
     
     bool takeMechanick(int m_number);
     bool releaseMechanic(int m_number);
-    bool takeAccesToGlobalVMech(int m_number);
     void printPrcessInQueue();
-    void setGlobalMechanicNumber(int x) { global_mechanic_number = x; }
-    int getGlobalMechanicNumber() { return global_mechanic_number; }
+    int how_much_we_need() const { return mWeNeed; }
 private:
-    int global_mechanic_number; // ilosc mechanikow do modyfikowania zmienna globalna dla wszyskich procesow
+    std::atomic_int mWeNeed;
 };
 
 #endif //! MECHANICS_MANAGER_HPP
